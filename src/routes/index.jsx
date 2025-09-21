@@ -1,6 +1,7 @@
 import { Routes, Route } from "react-router-dom";
 import Home from "../pages/Home.jsx";
 import Turnos from "../pages/Turnos.jsx";
+import Usuarios from "../pages/Usuarios.jsx";
 import ProtectedRoute from "./ProtectedRoute.jsx";
 import Emergencia from "../pages/Emergencia.jsx";
 import { useAuth } from "../context/AuthContext.jsx";
@@ -20,7 +21,8 @@ const AppRoutes = () => {
         {usuarioActivo ? 
             <Navbar /> 
         : 
-            <LoginHeader />}
+            <LoginHeader />
+            }
         
         <Routes>
             <Route path="/" element={<Home />} />
@@ -32,6 +34,11 @@ const AppRoutes = () => {
                 <ProtectedRoute>
                     <Turnos/>
                 </ProtectedRoute>
+            } />
+            <Route path="/usuarios" element={
+                
+                    <Usuarios/>
+
             } />
             <Route path="/editarUsuario" element={<EditarUsuarios/>} />
             <Route path="/agregarUsuario" element={<AgregarUsuarios/>} />
