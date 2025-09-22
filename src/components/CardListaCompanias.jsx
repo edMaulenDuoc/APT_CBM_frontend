@@ -1,6 +1,6 @@
 import BotonSimple from "../components/buttons/BotonSimple";
 import { Eye } from "lucide-react";
-const CardListaCompanias = ({titulo , lema ,logo ,id_compania}) => {
+const CardListaCompanias = ({titulo , lema ,logo ,id_compania, abrirModal }) => {
     return (
         <div className="flex flex-col foreground rounded-lg p-4 hover:shadow-lg hover:scale-110">
             <div className="flex ">
@@ -13,7 +13,10 @@ const CardListaCompanias = ({titulo , lema ,logo ,id_compania}) => {
                 </div>
             </div>
             <div className="">
-                {<BotonSimple icono={<Eye/>} textoBoton="Ver Lista"/>}
+                {<BotonSimple 
+                    icono={<Eye/>} 
+                    textoBoton="Ver Lista" 
+                    onClick={() => abrirModal(id_compania)} />}
             </div>
         </div>
     )
