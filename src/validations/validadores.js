@@ -37,6 +37,41 @@ export const largoString = (valor, min, max, nombre) => {
 }
 
 /**
+ * Valida si un arreglo está vacío
+ * @param {Array} valor - Arreglo a validar
+ * @param {string} nombre - Nombre del campo
+ * @returns {Object {esValido: boolean, mensaje: string}} - Objeto con el resultado de la validación
+ * */
+export const arrayVacio = (valor, nombre) => {
+    let esValido = true;
+    let mensaje = '';
+ 
+    if (!Array.isArray(valor) || valor.length === 0) {
+        esValido = false;
+        mensaje = `Debe seleccionar al menos un elemento en ${nombre}`;
+    }
+ 
+    return { esValido, mensaje };
+}
+
+/**
+ * Valida si se ha seleccionado una opción (diferente de 0 o vacío)
+ * @param {number|string} valor - Valor a validar
+ * @param {string} nombre - Nombre del campo
+ * @returns {Object {esValido: boolean, mensaje: string}} - Objeto con el resultado de la validación
+ */
+export const selecionado = (valor, nombre) => {
+    let esValido = true;
+    let mensaje = '';
+    if (valor === 0 || valor === "0" || valor === "" || valor === null || valor === undefined) {
+        esValido = false;
+        mensaje = `Debe seleccionar una opción en ${nombre}`;
+    }
+
+    return { esValido, mensaje };
+}
+
+/**
  * Ejecuta un arreglo de validaciones
  * @param {Array [{ valor: {string|number|date|etc}, methodo: funcion(), args: [] }]} validaciones - Arreglo de validaciones
  * @returns {Object {esValido: boolean, mensaje: string}} - Objeto con el resultado de la validación del formulario
