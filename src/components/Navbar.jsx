@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { Flame, CalendarDays, TriangleAlert, House, LogOut, Menu, X } from "lucide-react";
+import { Flame, CalendarDays, TriangleAlert, House, LogOut, Menu, X, Users } from "lucide-react";
 import Link from "./Link";
 import { useAuth } from "../context/AuthContext";
 
@@ -42,6 +42,9 @@ const Navbar = () => {
                         </div>
                         <div>
                             <Link href="/turnos" icon={<CalendarDays />} label="Turnos" />
+                        </div>
+                        <div>
+                            <Link href="/usuarios" icon={<Users />} label="Usuarios" />
                         </div>
                     </div>
                 </div>

@@ -9,35 +9,53 @@ import Input from "../components/form/Input";
 import DropDown from "../components/form/Dropdown";
 import BotonSimple from "../components/buttons/BotonSimple";
 import catalogosService from "../services/catalogos.service";
-
+import Error from "../components/Error";    
 const Emergencia = () => {
     const [emergencias, setEmergencias] = useState([]);
     const [emergenciasFiltradas, setEmergenciasFiltradas] = useState([]);
     const [cargando, setCargando] = useState(true);
     const [modalOpen, setModalOpen] = useState(false);
     const [emergenciaSeleccionada, setEmergenciaSeleccionada] = useState(null);
-
+    const [error, setError] = useState(false);
     const [search, setSearch] = useState("");
     const [tipoEmergencia, setTipoEmergencia] = useState(0);
 
+    /* const [catalogos, setCatalogos] = useState({
+        tiposEmergencia: []
+    });
+ */
     const [catalogos, setCatalogos] = useState({
+        companias: [],
+        tiposApoyo: [],
         tiposEmergencia: []
     });
 
     const obtenerEmergencias = async () => {
-        setCargando(true);
-        const data = await emergenciaService.getEmergencias();
-        setEmergencias(data);
-        setEmergenciasFiltradas(data);
-        setCargando(false);
+        try {
+            setCargando(true);
+            const data = await emergenciaService.getEmergencias();
+            setEmergencias(data);
+            setEmergenciasFiltradas(data);
+        } catch (error) {
+            setError(true);
+            setCargando(false);
+        }
+    };
+
+     const obtenerCatalogos = async () => {
+        try {
+            const companias = await catalogosService.getCompanias();
+            const tiposApoyo = await catalogosService.getTiposApoyo();
+            const tiposEmergencia = await catalogosService.getTiposEmergencia();
+            setCatalogos({ companias, tiposApoyo, tiposEmergencia });
+        } catch (error) {
+            setError(true);
+        } finally {
+            setCargando(false);
+        }
     };
 
     useEffect(() => {
-        const obtenerCatalogos = async () => {
-            const tiposEmergencia = await catalogosService.getTiposEmergencia();
-            setCatalogos({ tiposEmergencia });
-        };
-
         obtenerEmergencias();
         obtenerCatalogos();
     }, []);
@@ -83,6 +101,7 @@ const Emergencia = () => {
 
     useEffect(() => {
         aplicarFiltros();
+        console.log("search:", search, "tipoEmergencia:", tipoEmergencia);
     }, [search, tipoEmergencia, emergencias]);
 
     const handleTipoEmergencia = (e) => setTipoEmergencia(Number(e.target.value));
@@ -139,9 +158,13 @@ const Emergencia = () => {
 
                 {cargando ? (
                     <Cargando />
+                ) 
+                : error ? (
+                    <Error />
                 ) : emergenciasFiltradas.length === 0 ? (
                     <p>No hay emergencias registradas.</p>
-                ) : (
+                ) 
+                : (
                     <div className="space-y-10 ">
                         {emergenciasFiltradas.map((emergencia) => (
                             <div key={emergencia.id}>
@@ -164,7 +187,18 @@ const Emergencia = () => {
                         <div className="relative foreground w-4/5 h-10/12 p-6 rounded-2xl mt-30 overflow-auto">
                             {/* Título */}
                             <div className="flex justify-between items-center">
-                                <h1 className="font-bold text-lg text-white">Nueva emergencia</h1>
+                                <h1 className="font-bold text-lg text-white">
+                                    {emergenciaSeleccionada ?
+                                        <div className="flex items-center gap-4">
+                                            <h1 className="font-bold text-lg text-white">
+                                                Editar emergencia
+                                            </h1>
+                                            <div className=" px-2 bg-red-600 rounded-2xl " >
+                                                <p>{emergenciaSeleccionada.id}</p>
+                                            </div>
+                                        </div>
+                                        : `Nueva emergencia`}
+                                </h1>
                                 <X
                                     onClick={() => { setModalOpen(false); setEmergenciaSeleccionada(null); }}
                                     className="text-white cursor-pointer"
@@ -176,9 +210,9 @@ const Emergencia = () => {
                                 formInicial={emergenciaSeleccionada}
                                 onClose={() => { setEmergenciaSeleccionada(null); setModalOpen(false); }}
                                 onSaved={handleSaved}
+                                catalogos={catalogos}
                             />
                         </div>
-
                     </div>
                 </div>
             )}
