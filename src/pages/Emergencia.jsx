@@ -14,29 +14,25 @@ const Emergencia = () => {
     const [emergencias, setEmergencias] = useState([]);
     const [emergenciasFiltradas, setEmergenciasFiltradas] = useState([]);
     const [cargando, setCargando] = useState(true);
+    const [modalOpen, setModalOpen] = useState(false);
+    const [emergenciaSeleccionada, setEmergenciaSeleccionada] = useState(null);
 
-    const [search, setSearch] = useState("");              // valor del input
-    const [tipoEmergencia, setTipoEmergencia] = useState(0); // id seleccionado en dropdown
+    const [search, setSearch] = useState("");
+    const [tipoEmergencia, setTipoEmergencia] = useState(0);
+
     const [catalogos, setCatalogos] = useState({
         tiposEmergencia: []
     });
 
-    const abrirModal = (modalId) => {
-        document.querySelector(`#${modalId}`).classList.remove("hidden");
-    };
-
-    const cerrarModal = (modalId) => {
-        document.querySelector(`#${modalId}`).classList.add("hidden");
+    const obtenerEmergencias = async () => {
+        setCargando(true);
+        const data = await emergenciaService.getEmergencias();
+        setEmergencias(data);
+        setEmergenciasFiltradas(data);
+        setCargando(false);
     };
 
     useEffect(() => {
-        const obtenerEmergencias = async () => {
-            const data = await emergenciaService.getEmergencias();
-            setEmergencias(data);
-            setEmergenciasFiltradas(data); // inicial
-            setCargando(false);
-        };
-
         const obtenerCatalogos = async () => {
             const tiposEmergencia = await catalogosService.getTiposEmergencia();
             setCatalogos({ tiposEmergencia });
@@ -74,22 +70,26 @@ const Emergencia = () => {
         setEmergenciasFiltradas(resultado);
     };
 
+    const handleEditar = (emergencia) => {
+        setEmergenciaSeleccionada(emergencia);
+        setModalOpen(true);
+    };
+
+    const handleSaved = () => { // Esta funcion es usada tanto al crear como al editar
+        obtenerEmergencias();
+        setModalOpen(false);
+        setEmergenciaSeleccionada(null);
+    };
+
     useEffect(() => {
         aplicarFiltros();
     }, [search, tipoEmergencia, emergencias]);
 
-    const handleTipoEmergencia = (e) => {
-        setTipoEmergencia(Number(e.target.value));
-    };
+    const handleTipoEmergencia = (e) => setTipoEmergencia(Number(e.target.value));
 
-    const handleBuscar = (e) => {
-        setSearch(e.target.value);
-    };
+    const handleBuscar = (e) => setSearch(e.target.value);
 
-    const limpiarFiltros = () => {
-        setSearch("");
-        setTipoEmergencia(0);
-    };
+    const limpiarFiltros = () => { setSearch(""); setTipoEmergencia(0); };
 
     return (
         <div className="h-screen overflow-auto">
@@ -98,13 +98,13 @@ const Emergencia = () => {
                 titulo="Registro de emergencias"
                 subtitulo="Historial completo de incidentes registrados"
                 textoBoton="+ Nueva Emergencia"
-                onClick={() => abrirModal("modal-emergencia")}
+                onClick={() => { setEmergenciaSeleccionada(null); setModalOpen(true); }}
             />
 
             {/* Container de la pagina */}
             <div className="p-6 px-8 md:px-20">
                 {/* Filtro */}
-                <div className="foreground px-6 py-2 w-full mb-10 rounded-2xl">
+                <div className="foreground px-6 pt-2 w-full pb-7 mb-10 rounded-2xl">
                     <h1>Filtros y búsqueda</h1>
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-4">
                         <div>
@@ -145,7 +145,7 @@ const Emergencia = () => {
                     <div className="space-y-10 ">
                         {emergenciasFiltradas.map((emergencia) => (
                             <div key={emergencia.id}>
-                                <CardEmergenciaa emergencia={emergencia} />
+                                <CardEmergenciaa emergencia={emergencia} onEditar={handleEditar} />
                             </div>
                         ))}
                     </div>
@@ -153,30 +153,35 @@ const Emergencia = () => {
             </div>
 
             {/* Modal */}
-            <div id="modal-emergencia" className="hidden -z-50">
-                <div className="fixed inset-0 flex items-center justify-center">
+            {modalOpen && (
+                <div id="modal-emergencia" className="-z-50">
+                    <div className="fixed inset-0 flex items-center justify-center">
 
-                    {/* Fondo semitransparente */}
-                    <div className="absolute inset-0 bg-black opacity-80"></div>
+                        {/* Fondo semitransparente */}
+                        <div className="absolute inset-0 bg-black opacity-80" onClick={() => { setModalOpen(false); setEmergenciaSeleccionada(null); }}></div>
 
-                    {/* Contenido del modal */}
-                    <div className="relative foreground w-4/5 h-9/12 p-6 rounded-2xl mt-30 overflow-auto">
-                        {/* Título */}
-                        <div className="flex justify-between items-center">
-                            <h1 className="font-bold text-lg text-white">Nueva emergencia</h1>
-                            <X
-                                onClick={() => cerrarModal("modal-emergencia")}
-                                className="text-white cursor-pointer"
+                        {/* Contenido del modal */}
+                        <div className="relative foreground w-4/5 h-10/12 p-6 rounded-2xl mt-30 overflow-auto">
+                            {/* Título */}
+                            <div className="flex justify-between items-center">
+                                <h1 className="font-bold text-lg text-white">Nueva emergencia</h1>
+                                <X
+                                    onClick={() => { setModalOpen(false); setEmergenciaSeleccionada(null); }}
+                                    className="text-white cursor-pointer"
+                                />
+                            </div>
+
+                            {/* Contenido */}
+                            <FormEmergencia
+                                formInicial={emergenciaSeleccionada}
+                                onClose={() => { setEmergenciaSeleccionada(null); setModalOpen(false); }}
+                                onSaved={handleSaved}
                             />
                         </div>
 
-                        {/* Contenido */}
-                        <FormEmergencia />
                     </div>
-
                 </div>
-            </div>
-
+            )}
         </div>
     );
 };

@@ -13,17 +13,26 @@ const emergenciaService = {
             }
         );
 
-        console.log(response.data);
-        
+        return response.data;
+    },
+    
+    editarEmergencia: async (formData) => {
+        const promesa = api.put(`/emergencias/${formData.id}`, formData);
+        const response = await notify.promise(
+            promesa,
+            {
+                pending: "Actualizando emergencia...",
+                success: "Emergencia actualizada con éxito",
+                error: "Error al actualizar la emergencia"
+            }
+        );
+
         return response.data;
     },
 
     getEmergencias: async () => {
         const response = await api.get("/emergencias");
         
-
-        console.log(response.data);
-
         return response.data;
     }
 }

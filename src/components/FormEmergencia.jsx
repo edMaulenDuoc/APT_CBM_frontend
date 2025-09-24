@@ -10,8 +10,9 @@ import BotonRojo from "./buttons/BotonRojo";
 import { validarFormEmergencia } from "../validations/validacionFormularios";
 import notify from "../services/notify.service";
 import emergenciaService from "../services/emergencia.service";
+import BotonSimple from "./buttons/BotonSimple";
 
-const FormEmergencia = ({ }) => {
+const FormEmergencia = ({ formInicial = null, onClose, onSaved }) => {
     const [cargando, setCargando] = useState(true);
     const [catalogos, setCatalogos] = useState({
         companias: [],
@@ -19,14 +20,10 @@ const FormEmergencia = ({ }) => {
         tiposEmergencia: []
     });
 
-    const [formData, setFormData] = useState({
-        tipo_id: 0,
-        direccion: "",
-        vehiculos: [],
-        instituciones: []
-    });
+    const formVacio = { tipo_id: 0, direccion: "", vehiculos: [], instituciones: [] };
+    const [formData, setFormData] = useState(formVacio);
 
-    
+
     useEffect(() => {
         const obtenerCatalogos = async () => {
             const companias = await catalogosService.getCompanias();
@@ -35,17 +32,26 @@ const FormEmergencia = ({ }) => {
             setCatalogos({ companias, tiposApoyo, tiposEmergencia });
             setCargando(false);
         }
-        
+
         obtenerCatalogos();
     }, []);
 
-    /* useEffect(() => {
-        console.log(catalogos.companias);
-        console.log(catalogos.tiposEmergencia);
-        console.log(catalogos.tiposApoyo);
+    useEffect(() => {
+        if (formInicial) {
+            const clon = JSON.parse(JSON.stringify(formInicial));
 
-    }, [catalogos]); */
+            setFormData({
+                id: clon.id,
+                tipo_id: clon.tipo_id ?? clon.tipo?.id ?? 0,
+                direccion: clon.direccion ?? "",
+                vehiculos: (clon.vehiculos || []).map(v => v.vehiculo_id),
+                instituciones: clon.apoyos ?? []
+            });
 
+        } else {
+            setFormData(formVacio);
+        }
+    }, [formInicial]);
 
     const agregarInstitucion = () => {
         setFormData(prev => ({
@@ -67,7 +73,7 @@ const FormEmergencia = ({ }) => {
 
     const handleSelectVehiculo = (e) => {
         setFormData(prev => {
-            const { value } = e.target;
+            const value = Number(e.target.value);
             return prev.vehiculos.includes(value)
                 ? { ...prev, vehiculos: prev.vehiculos.filter(v => v !== value) }
                 : { ...prev, vehiculos: [...prev.vehiculos, value] };
@@ -90,17 +96,31 @@ const FormEmergencia = ({ }) => {
         }));
     };
 
-    const handleSubmit = () => {
+    const handleSubmit = async () => {
         const { esValido, mensaje } = validarFormEmergencia(formData);
-        
+        let guardado = false;
+
         if (!esValido) {
             notify.error(mensaje);
             return;
         }
 
-        emergenciaService.registrarEmergencia(formData)
+        if (formData.id !== null && formData.id !== undefined) {
+            console.log("Editar emergencia:", formData);
+            // guardado = await emergenciaService.editarEmergencia(formData);
+        } else {
+            console.log("Crear emergencia:", formData);
+            guardado = await emergenciaService.registrarEmergencia(formData);
+        }
+
+        if (!guardado) {
+            notify.error("No se pudo realizar la operación");
+            return;
+        }
+
+        onSaved && onSaved();
     }
-    
+
     /*  useEffect(() => {
         console.log(formData);
     }, [formData]); */
@@ -112,10 +132,10 @@ const FormEmergencia = ({ }) => {
                     <>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 py-6">
                             <div>
-                                <DropDown name="tipo_id" label="Tipo de emergencia"/*  options={catalogos.tiposEmergencia} */ onChange={handleChange} valorInicial={formData.tipo_id} />
+                                <DropDown name="tipo_id" label="Tipo de emergencia" options={catalogos.tiposEmergencia} onChange={handleChange} valorInicial={formData.tipo_id} />
                             </div>
                             <div>
-                                <Input label="Dirección" type="text" name="direccion" placeholder="Ingrese la ubicación de la emergencia" onChange={handleChange} />
+                                <Input label="Dirección" type="text" name="direccion" placeholder="Ingrese la ubicación de la emergencia" onChange={handleChange} value={formData.direccion} />
                             </div>
                         </div>
 
@@ -126,11 +146,11 @@ const FormEmergencia = ({ }) => {
                             </div>
                             {/* Vehiculos a despachar */}
                             <div>
-                                <div className="grid md:grid-cols-4 grid-cols-1 gap-4">
+                                <div className="grid md:grid-cols-4 grid-cols-1 gap-4  px-6 mt-4">
                                     {catalogos.companias.length > 0 &&
                                         catalogos.companias.map((c) => (
                                             <div key={c.id}>
-                                                <VehiculosCompania compania={c} onChange={handleSelectVehiculo} />
+                                                <VehiculosCompania compania={c} onChange={handleSelectVehiculo} vehiculosEmergencia={formData.vehiculos} />
                                             </div>
                                         ))}
                                 </div>
@@ -146,7 +166,7 @@ const FormEmergencia = ({ }) => {
                                     onClick={agregarInstitucion} />
                             </div>
 
-                            <div id="contenedor-instituciones">
+                            <div id="contenedor-instituciones" className="flex flex-col items-center">
                                 {catalogos.tiposApoyo.length > 0 && (
                                     <>
                                         {formData.instituciones.map((inst, index) => (
@@ -158,6 +178,8 @@ const FormEmergencia = ({ }) => {
                                                 valorInicial={inst.tipo_apoyo_id}
                                                 onChange={handleSelectInstitucion}
                                                 onRemove={eliminarInstitucion}
+                                                horaSolicitud={inst.hora_solicitud}
+                                                horaEnLugar={inst.hora_llegada}
                                             />
                                         ))}
                                     </>
@@ -166,8 +188,9 @@ const FormEmergencia = ({ }) => {
                         </div>
 
 
-                        <div className="mt-6 w-full flex justify-end p-5">
-                            <BotonRojo textoBoton="Crear Emergencia" onClick={handleSubmit} />
+                        <div className="mt-6 w-full flex justify-end p-5 gap-10">
+                            <BotonSimple onClick={() => onClose && onClose()} textoBoton="Cancelar" />
+                            <BotonRojo textoBoton={formData.id ? "Actualizar" : "Crear Emergencia"} onClick={handleSubmit} />
                         </div>
                     </>
                 )

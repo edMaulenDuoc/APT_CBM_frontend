@@ -1,8 +1,8 @@
 import BotonSimple from './buttons/BotonSimple'
 import { Eye, MapPin, Clock4, CircleUser, Truck } from 'lucide-react';
-const CardEmergenciaa = ({ emergencia }) => {
+const CardEmergenciaa = ({ emergencia, onEditar }) => {
     return (
-        <div className="foreground w-full p-4 rounded-2xl hover:scale-105 hover:shadow-lg transition-all">
+        <div className="foreground w-full p-4 rounded-2xl hover:ml-3 hover:shadow-lg hover:cursor-pointer transition-all">
             {/* Cabecera */}
             <div className="flex justify-between items-center mb-4">
                 <div className="flex gap-4 items-center">
@@ -16,6 +16,7 @@ const CardEmergenciaa = ({ emergencia }) => {
                     <BotonSimple
                         textoBoton={"Editar"}
                         icono={<Eye />}
+                        onClick={() => onEditar && onEditar(emergencia)}
                     />
                 </div>
             </div>
