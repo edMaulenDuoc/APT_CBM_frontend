@@ -16,7 +16,7 @@ const LoginHeader = () => {
     const navigate = useNavigate();
     
     const [formData, setFormData] = useState({
-        usuario: "edu.maulen",
+        usuario: "admin",
         clave: "123456"
     });
 

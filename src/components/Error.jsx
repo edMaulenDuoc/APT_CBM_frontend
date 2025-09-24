@@ -3,7 +3,7 @@ import notify from "../services/notify.service"
 import { ServerOff } from "lucide-react"
 const Error = () => {
     useEffect(() => {
-        notify.error("Error inesperado")
+        notify.error("Error de sistema, contacte con el administrador")
     }, [])
 
     return (

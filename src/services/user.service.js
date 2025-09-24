@@ -15,7 +15,7 @@ const userService = {
 
             return response.data;
         } catch (error) {
-            notify.error( error.response?.data?.error || error.message || "Error al iniciar sesión");
+            notify.error("Error al iniciar sesión");
             throw error;
         }
     },
@@ -41,7 +41,6 @@ const userService = {
     perfil: async () => {
         try {
             const perfil = await api.get("/users/perfil");
-            console.log("data " , perfil.data);
             return perfil.data;
         } catch (error) {
             throw error;

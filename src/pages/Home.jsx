@@ -1,9 +1,32 @@
 import { Flame, TriangleAlert, CalendarDays, ChartLine } from "lucide-react"
 import CardFuncionalidades from "../components/CardFuncionalidades";
+import { homeService } from "../services/home.service";
+import { useEffect, useState } from "react";
+import Error from "../components/Error";
 
 const Home = () => {
+    const [error, setError] = useState(false);
+    // Verificar el estado de la API al cargar el componente    
+    useEffect(() => {
+        const verificarAPI = async () => {
+            try {
+                const estado = await homeService.verificarEstadoAPI();
+                console.log("Estado de la API:", estado);
+            } catch (error) {
+                console.error("Error al verificar el estado de la API:", error);
+                setError(true);
+            }
+        };
+        verificarAPI();
+    }, []);
+
     return (
         <div className="overflow-y-auto h-screen flex flex-col justify-between">
+            {error && 
+                <div className="mt-50">
+                    <Error/>
+                </div>
+            }
             {/* Hero Section  */}
             <section className="relative py-13 px-4 sm:px-6 lg:px-8">
                 <div className="max-w-4xl mx-auto text-center">
