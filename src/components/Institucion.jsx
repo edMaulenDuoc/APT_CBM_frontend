@@ -1,5 +1,5 @@
 /* Iconos */
-import { X } from "lucide-react";
+import { X, MapPinned } from "lucide-react";
 /* Servicios     */
 import emergenciaService from "../services/emergencia.service";
 /* Componentes */
@@ -71,6 +71,7 @@ const Institucion = ({
                             <BotonRojo
                                 textoBoton={"Marcar llegada"}
                                 onClick={handleLlegadaClick}
+                                icono={<MapPinned />}
                             />
                         </div>
                         :

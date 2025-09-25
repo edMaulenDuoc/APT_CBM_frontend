@@ -78,14 +78,19 @@ const Navbar = () => {
                     className={`absolute top-full left-0 w-full md:hidden foreground border-t border-gray-800 shadow-md overflow-hidden transition-all duration-300 ${open ? "opacity-100 max-h-[400px]" : "opacity-0 max-h-0"}`}
                 >
                     <div className="flex flex-col p-2">
-                        <div onClick={() => setOpen(false)}>
-                            <Link href="/test" icon={<House />} label="Inicio" />
-                        </div>
-                        <div onClick={() => setOpen(false)}>
-                            <Link href="/saludos" icon={<CalendarDays />} label="Acerca de" />
-                        </div>
-                        <div onClick={() => setOpen(false)}>
-                            <Link href="/emergencias" icon={<TriangleAlert />} label="Emergencias" />
+                        <div className="max-h-72 overflow-y-auto">
+                            <div onClick={() => setOpen(false)}>
+                                <Link href="/test" icon={<House />} label="Inicio" />
+                            </div>
+                            <div onClick={() => setOpen(false)}>
+                                <Link href="/saludos" icon={<CalendarDays />} label="Acerca de" />
+                            </div>
+                            <div onClick={() => setOpen(false)}>
+                                <Link href="/emergencias" icon={<TriangleAlert />} label="Emergencias" />
+                            </div>
+                            <div>
+                                <Link href="/usuarios" icon={<Users />} label="Usuarios" />
+                            </div>
                         </div>
                         <div className="pt-2">
                             <button

@@ -20,7 +20,10 @@ import emergenciaService from "../services/emergencia.service";
 
 const Emergencia = () => {
     // Solo el usuario con ID 1 puede ver el botón de nueva emergencia y el de editar
-    const checkPermiso = usePermiso([1]);
+    const checkPermiso = true; // Hardcodeado para pruebas
+    const { checkPrivilegios } = usePermiso({}); // Admin y Chofer
+
+    console.log("checkPermiso en Emergencia:", checkPrivilegios([1])); // Admin
 
     /* Control de flujo */
     const [cargando, setCargando] = useState(true);
@@ -38,6 +41,7 @@ const Emergencia = () => {
         tiposApoyo: [],
         tiposEmergencia: []
     });
+
 
     /* Obtiene las emergencias para llenar el listado */
     const obtenerEmergencias = async () => {
@@ -190,7 +194,7 @@ const Emergencia = () => {
                         <p>No hay emergencias registradas.</p>
                     )
                         : (
-                            <div className="space-y-10 ">
+                            <div className="space-y-10 grid grid-cols-1 md:grid-cols-1D  gap-6">
                                 {emergenciasFiltradas.map((emergencia) => (
                                     <div key={emergencia.id}>
                                         <CardEmergenciaa emergencia={emergencia} onEditar={handleEditar} checkPermiso={checkPermiso} />
@@ -209,9 +213,9 @@ const Emergencia = () => {
                         <div className="absolute inset-0 bg-black opacity-80" onClick={() => { setModalOpen(false); setEmergenciaSeleccionada(null); }}></div>
 
                         {/* Contenido del modal */}
-                        <div className="relative foreground w-4/5 h-10/12 p-6 rounded-2xl mt-30 overflow-auto">
+                        <div className="relative foreground w-4/5 h-10/12  rounded-2xl mt-30 overflow-auto">
                             {/* Título */}
-                            <div className="flex justify-between items-center">
+                            <div className="flex justify-between items-center p-4 bg-gray-800">
                                 <h1 className="font-bold text-lg text-white">
                                     {emergenciaSeleccionada ?
                                         <div className="flex items-center gap-4">
@@ -231,13 +235,15 @@ const Emergencia = () => {
                             </div>
 
                             {/* Contenido */}
-                            <FormEmergencia
-                                formInicial={emergenciaSeleccionada}
-                                onClose={() => { setEmergenciaSeleccionada(null); setModalOpen(false); }}
-                                onSaved={handleSaved}
-                                catalogos={catalogos}
-                                obtenerEmergencias={obtenerEmergencias}
-                            />
+                            <div className="p-6">
+                                <FormEmergencia
+                                    formInicial={emergenciaSeleccionada}
+                                    onClose={() => { setEmergenciaSeleccionada(null); setModalOpen(false); }}
+                                    onSaved={handleSaved}
+                                    catalogos={catalogos}
+                                    obtenerEmergencias={obtenerEmergencias}
+                                />
+                            </div>
                         </div>
                     </div>
                 </div>
