@@ -1,4 +1,4 @@
-import { use, useEffect } from "react"
+import { useEffect } from "react"
 import notify from "../services/notify.service"
 import { ServerOff } from "lucide-react"
 const Error = () => {

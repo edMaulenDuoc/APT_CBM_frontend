@@ -1,13 +1,17 @@
 import { Plus, Info } from "lucide-react";
+import { useAuth } from "../context/AuthContext";
+import { useState, useEffect, use } from "react";
 
 const Header = ({ IconoHeader = null, 
                   titulo, 
                   subtitulo, 
                   textoBoton = false, 
-                  informacion = false, 
-                  onClick = () => { console.log("Sin función definida")
-                } }
+                  informacion = false,
+                  checkPermiso = true,
+                  onClick = () => { console.log("Sin función definida")} 
+                }
 ) => {
+ 
     return (
         <div className="foreground mt-19 flex justify-between items-center px-6 py-7 shadow-md ">
             <div className="flex items-center gap-4">
@@ -19,8 +23,7 @@ const Header = ({ IconoHeader = null,
                     <div><h3 className="pl-5">{subtitulo}</h3></div>
                 </div>
             </div>
-
-            {textoBoton &&
+            {checkPermiso && 
                 <div>
                     <button className="border-1 flex items-center gap-3.5 text-white px-4 py-2 rounded-md hover:cursor-pointer 
                                        hover:scale-105 hover:bg-gray-800 transition-transform "

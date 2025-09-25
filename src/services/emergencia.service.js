@@ -34,6 +34,22 @@ const emergenciaService = {
         const response = await api.get("/emergencias");
         
         return response.data;
+    },
+
+    marcarLlegadaInstitucion: async (id) => {
+        const promesa = api.put(`/emergencias/instituciones/marcar-llegada/${id}`);
+        const response = await notify.promise(
+            promesa,
+            {
+                pending: "Marcando llegada...",
+                success: "Llegada marcada con éxito",
+                error: "Error al marcar la llegada"
+            }
+        );
+
+        console.log("response", response);
+        
+        return response;
     }
 }
 

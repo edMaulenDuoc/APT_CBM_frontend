@@ -1,20 +1,28 @@
-import { useState, useEffect } from "react";
+/* Iconos */
 import { Truck, Plus } from "lucide-react";
+/* Componentes */
 import DropDown from "./form/Dropdown";
 import Input from "./form/Input";
 import Institucion from "./Institucion";
 import VehiculosCompania from "./VehiculosCompania";
 import BotonRojo from "./buttons/BotonRojo";
-import { validarFormEmergencia } from "../validations/validacionFormularios";
-import notify from "../services/notify.service";
-import emergenciaService from "../services/emergencia.service";
 import BotonSimple from "./buttons/BotonSimple";
+/* Servicios     */
+import notify from "../services/notify.service";
+import { validarFormEmergencia } from "../validations/validacionFormularios";
+import emergenciaService from "../services/emergencia.service";
+/* Hooks */
+import { useState, useEffect } from "react";
+import useCatalogo from "../hooks/useCatalogo";
 
-const FormEmergencia = ({ formInicial = null, onClose, onSaved, catalogos }) => {
-    const formVacio = { id: null, key: Date.now(), tipo_id: 0, direccion: "", vehiculos: [], instituciones: [] };
+const FormEmergencia = ({ formInicial = null, onClose, onSaved, catalogos, obtenerEmergencias }) => {
+    // formVacio se usa cuando es nueva emergencia
+    const formVacio = { id: null, key: Date.now(), tipo_id: 0, direccion: "", vehiculos: [], instituciones: [], compania_obac: 0, obac_id: 0 };
     const [formData, setFormData] = useState(formVacio);
+    const catalogoCompania = useCatalogo(catalogos.companias, "id", "compania");
+    const [catalogoUsuarios, setCatalogoUsuarios] = useState([]);
 
-
+    /* Si el componente recibe un formulario inicial, lo establece en el estado de formData */
     useEffect(() => {
         if (formInicial) {
             const clon = JSON.parse(JSON.stringify(formInicial));
@@ -24,7 +32,9 @@ const FormEmergencia = ({ formInicial = null, onClose, onSaved, catalogos }) => 
                 tipo_id: clon.tipo_id ?? clon.tipo?.id ?? 0,
                 direccion: clon.direccion ?? "",
                 vehiculos: (clon.vehiculos || []).map(v => v.vehiculo_id),
-                instituciones: clon.apoyos ?? []
+                instituciones: clon.apoyos ?? [],
+                compania_obac: clon.obac?.compania.id ?? 0,
+                obac_id: clon.obac_id ?? 0
             });
 
         } else {
@@ -32,6 +42,7 @@ const FormEmergencia = ({ formInicial = null, onClose, onSaved, catalogos }) => 
         }
     }, [formInicial]);
 
+    /* Agrega una institucion al formulario */
     const agregarInstitucion = () => {
         setFormData(prev => ({
             ...prev,
@@ -42,6 +53,7 @@ const FormEmergencia = ({ formInicial = null, onClose, onSaved, catalogos }) => 
         }));
     };
 
+    /* Maneja los cambios en los inputs del formulario */
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData(prev => ({
@@ -50,6 +62,7 @@ const FormEmergencia = ({ formInicial = null, onClose, onSaved, catalogos }) => 
         }));
     }
 
+    /* Maneja la selección de vehículos */
     const handleSelectVehiculo = (e) => {
         setFormData(prev => {
             const value = Number(e.target.value);
@@ -59,6 +72,7 @@ const FormEmergencia = ({ formInicial = null, onClose, onSaved, catalogos }) => 
         });
     };
 
+    /* Maneja la selección de instituciones */
     const handleSelectInstitucion = (key, value) => {
         setFormData(prev => ({
             ...prev,
@@ -68,6 +82,7 @@ const FormEmergencia = ({ formInicial = null, onClose, onSaved, catalogos }) => 
         }));
     };
 
+    /* Elimina una institucion del formulario */
     const eliminarInstitucion = (key) => {
         setFormData(prev => ({
             ...prev,
@@ -75,6 +90,7 @@ const FormEmergencia = ({ formInicial = null, onClose, onSaved, catalogos }) => 
         }));
     };
 
+    /* Envía el formulario tanto para crear como para editar usa formData.id para determinar la acción */
     const handleSubmit = async () => {
         const { esValido, mensaje } = validarFormEmergencia(formData);
         let guardado = false;
@@ -97,6 +113,17 @@ const FormEmergencia = ({ formInicial = null, onClose, onSaved, catalogos }) => 
 
         onSaved && onSaved();
     }
+
+    /* Efecto para actualizar el catálogo de usuarios que se usa en el select de asignacion de obac */
+    useEffect(() => {
+        const compania = catalogos.companias.find(c => c.id == formData.compania_obac)
+
+        setCatalogoUsuarios(
+            compania
+                ? compania.usuarios.map(u => ({ value: u.id, label: `${u.nombre} ${u.apellido_pat}` }))
+                : []
+        );
+    }, [formData.compania_obac]);
 
     return (
         <div className="w-full">
@@ -140,8 +167,6 @@ const FormEmergencia = ({ formInicial = null, onClose, onSaved, catalogos }) => 
                     {catalogos.tiposApoyo.length > 0 && (
                         <>
                             {formData.instituciones.map((inst, index) => {
-                                console.log("Render institucion:", inst);
-
                                 return (
                                     <div key={index}>
                                         <Institucion
@@ -154,12 +179,29 @@ const FormEmergencia = ({ formInicial = null, onClose, onSaved, catalogos }) => 
                                             onRemove={eliminarInstitucion}
                                             horaSolicitud={inst.hora_solicitud}
                                             horaEnLugar={inst.hora_llegada}
+                                            obtenerEmergencias={obtenerEmergencias}
                                         />
                                     </div>
                                 );
                             })}
                         </>
                     )}
+                </div>
+            </div>
+
+            {/* Asignar Obac */}
+            <div className="mt-8">
+                <div className="pt-6">
+                    <h1 className="font-bold text-lg text-white">Asignar Obac</h1>
+                </div>
+
+                <div className="grid grid-cols-3 gap-6 pt-6">
+                    <div>
+                        <DropDown name="compania_obac" label="Compañia" options={catalogoCompania} onChange={handleChange} valorInicial={formData.compania_obac} />
+                    </div>
+                    <div>
+                        <DropDown name="obac_id" label="Usuario (primero seleccione una compañia)" options={catalogoUsuarios} onChange={handleChange} valorInicial={formData.obac_id} />
+                    </div>
                 </div>
             </div>
 

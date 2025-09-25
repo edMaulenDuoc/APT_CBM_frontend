@@ -1,6 +1,6 @@
 import BotonSimple from './buttons/BotonSimple'
 import { Eye, MapPin, Clock4, CircleUser, Truck } from 'lucide-react';
-const CardEmergenciaa = ({ emergencia, onEditar }) => {
+const CardEmergenciaa = ({ emergencia, onEditar, checkPermiso }) => {
     return (
         <div className="foreground w-full p-4 rounded-2xl hover:ml-3 hover:shadow-lg hover:cursor-pointer transition-all">
             {/* Cabecera */}
@@ -12,13 +12,15 @@ const CardEmergenciaa = ({ emergencia, onEditar }) => {
                     <h1>{emergencia.tipo.descripcion}</h1>
                 </div>
 
-                <div>
-                    <BotonSimple
-                        textoBoton={"Editar"}
-                        icono={<Eye />}
-                        onClick={() => onEditar && onEditar(emergencia)}
-                    />
-                </div>
+                { checkPermiso && 
+                    <div>
+                        <BotonSimple
+                            textoBoton={"Editar"}
+                            icono={<Eye />}
+                            onClick={() => onEditar && onEditar(emergencia)}
+                        />
+                    </div>
+                }
             </div>
             {/* Cuerpo */}
             <div className='grid grid-cols-1 md:grid-cols-4 gap-4 mb-3'>

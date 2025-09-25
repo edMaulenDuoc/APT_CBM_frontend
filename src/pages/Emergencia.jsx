@@ -1,72 +1,89 @@
+/* Iconos */
 import { TriangleAlert, X } from "lucide-react";
+/* Hooks */
+import { useState, useEffect } from "react";
+import { usePermiso } from "../hooks/usePermiso";
+/* Componentes */
 import Header from "../components/Header";
 import FormEmergencia from "../components/FormEmergencia";
-import { useState, useEffect } from "react";
-import emergenciaService from "../services/emergencia.service";
 import Cargando from "../components/Cargando";
 import CardEmergenciaa from "../components/CardEmergencia";
+import Error from "../components/Error";
+
 import Input from "../components/form/Input";
 import DropDown from "../components/form/Dropdown";
 import BotonSimple from "../components/buttons/BotonSimple";
+
+/* Servicios */
 import catalogosService from "../services/catalogos.service";
-import Error from "../components/Error";    
+import emergenciaService from "../services/emergencia.service";
+
 const Emergencia = () => {
-    const [emergencias, setEmergencias] = useState([]);
-    const [emergenciasFiltradas, setEmergenciasFiltradas] = useState([]);
+    // Solo el usuario con ID 1 puede ver el botón de nueva emergencia y el de editar
+    const checkPermiso = usePermiso([1]);
+
+    /* Control de flujo */
     const [cargando, setCargando] = useState(true);
     const [modalOpen, setModalOpen] = useState(false);
-    const [emergenciaSeleccionada, setEmergenciaSeleccionada] = useState(null);
     const [error, setError] = useState(false);
     const [search, setSearch] = useState("");
     const [tipoEmergencia, setTipoEmergencia] = useState(0);
 
-    /* const [catalogos, setCatalogos] = useState({
-        tiposEmergencia: []
-    });
- */
+    /* Datos */
+    const [emergencias, setEmergencias] = useState([]);
+    const [emergenciasFiltradas, setEmergenciasFiltradas] = useState([]);
+    const [emergenciaSeleccionada, setEmergenciaSeleccionada] = useState(null);
     const [catalogos, setCatalogos] = useState({
         companias: [],
         tiposApoyo: [],
         tiposEmergencia: []
     });
 
+    /* Obtiene las emergencias para llenar el listado */
     const obtenerEmergencias = async () => {
         try {
             setCargando(true);
             const data = await emergenciaService.getEmergencias();
             setEmergencias(data);
             setEmergenciasFiltradas(data);
+            setCargando(false);
         } catch (error) {
             setError(true);
             setCargando(false);
         }
     };
 
-     const obtenerCatalogos = async () => {
+    /* Obtiene los catálogos necesarios para los filtros y formularios (dropdowns) */
+    const obtenerCatalogos = async () => {
         try {
+            setCargando(true);
             const companias = await catalogosService.getCompanias();
             const tiposApoyo = await catalogosService.getTiposApoyo();
             const tiposEmergencia = await catalogosService.getTiposEmergencia();
             setCatalogos({ companias, tiposApoyo, tiposEmergencia });
+            setCargando(false);
         } catch (error) {
             setError(true);
-        } finally {
             setCargando(false);
         }
     };
 
+    /* Efecto para obtener las emergencias y los catálogos al cargar el componente */
     useEffect(() => {
         obtenerEmergencias();
         obtenerCatalogos();
     }, []);
 
+    /* Aplica los filtros de búsqueda y tipo de emergencia */
     const aplicarFiltros = () => {
         let resultado = emergencias;
 
+        /* Filtra por tipo de emergencia */
         if (tipoEmergencia != 0) {
             resultado = resultado.filter((e) => e.tipo_id == tipoEmergencia);
         }
 
+        /* Filtra por búsqueda */
         if (search.trim() !== "") {
             resultado = resultado.filter(
                 (emergencia) =>
@@ -88,26 +105,33 @@ const Emergencia = () => {
         setEmergenciasFiltradas(resultado);
     };
 
+    /* Efecto para aplicar los filtros cada vez que cambian */
+    useEffect(() => {
+        aplicarFiltros();
+    }, [search, tipoEmergencia, emergencias]);
+
+    /* Maneja el comportamiento al hacer click en el botón editar de cada card de emergencia */
     const handleEditar = (emergencia) => {
         setEmergenciaSeleccionada(emergencia);
         setModalOpen(true);
     };
 
-    const handleSaved = () => { // Esta funcion es usada tanto al crear como al editar
+    // Esta funcion es usada tanto al crear como al editar
+    /*  Maneja el guardado de la emergencia */
+    const handleSaved = () => {
         obtenerEmergencias();
         setModalOpen(false);
         setEmergenciaSeleccionada(null);
+        setCargando(false);
     };
 
-    useEffect(() => {
-        aplicarFiltros();
-        console.log("search:", search, "tipoEmergencia:", tipoEmergencia);
-    }, [search, tipoEmergencia, emergencias]);
-
+    /* Maneja el cambio de tipo de emergencia */
     const handleTipoEmergencia = (e) => setTipoEmergencia(Number(e.target.value));
 
+    /* Maneja el cambio en el input de búsqueda */
     const handleBuscar = (e) => setSearch(e.target.value);
 
+    /* Limpia los filtros */
     const limpiarFiltros = () => { setSearch(""); setTipoEmergencia(0); };
 
     return (
@@ -118,6 +142,7 @@ const Emergencia = () => {
                 subtitulo="Historial completo de incidentes registrados"
                 textoBoton="+ Nueva Emergencia"
                 onClick={() => { setEmergenciaSeleccionada(null); setModalOpen(true); }}
+                checkPermiso={checkPermiso}
             />
 
             {/* Container de la pagina */}
@@ -158,24 +183,24 @@ const Emergencia = () => {
 
                 {cargando ? (
                     <Cargando />
-                ) 
-                : error ? (
-                    <Error />
-                ) : emergenciasFiltradas.length === 0 ? (
-                    <p>No hay emergencias registradas.</p>
-                ) 
-                : (
-                    <div className="space-y-10 ">
-                        {emergenciasFiltradas.map((emergencia) => (
-                            <div key={emergencia.id}>
-                                <CardEmergenciaa emergencia={emergencia} onEditar={handleEditar} />
+                )
+                    : error ? (
+                        <Error />
+                    ) : emergenciasFiltradas.length === 0 ? (
+                        <p>No hay emergencias registradas.</p>
+                    )
+                        : (
+                            <div className="space-y-10 ">
+                                {emergenciasFiltradas.map((emergencia) => (
+                                    <div key={emergencia.id}>
+                                        <CardEmergenciaa emergencia={emergencia} onEditar={handleEditar} checkPermiso={checkPermiso} />
+                                    </div>
+                                ))}
                             </div>
-                        ))}
-                    </div>
-                )}
+                        )}
             </div>
 
-            {/* Modal */}
+            {/* Modal formulario emergencia*/}
             {modalOpen && (
                 <div id="modal-emergencia" className="-z-50">
                     <div className="fixed inset-0 flex items-center justify-center">
@@ -211,6 +236,7 @@ const Emergencia = () => {
                                 onClose={() => { setEmergenciaSeleccionada(null); setModalOpen(false); }}
                                 onSaved={handleSaved}
                                 catalogos={catalogos}
+                                obtenerEmergencias={obtenerEmergencias}
                             />
                         </div>
                     </div>
