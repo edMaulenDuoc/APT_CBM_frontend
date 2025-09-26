@@ -1,7 +1,22 @@
-import { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
+import { useState, useEffect } from "react";
 
-/* export const usePermiso = ({ usuariosPermitidos = [], emergencia = null }) => {
+/* export const usePermiso = () => {
+    const { usuario } = useAuth();
+
+
+    const checkPrivilegios = (permisos = []) => {
+        return permisos.includes(usuario?.tipo?.id);
+    }
+
+    const checkEsChofer = () => usuario?.tipo?.id === 26;   // Chofer
+    const checkEsAdmin = () => usuario?.tipo?.id === 1;
+    const checkEsObac = (emergencia) => !!emergencia && emergencia.obac_id === usuario.id;
+
+    return { checkPrivilegios, checkEsChofer, checkEsAdmin, checkEsObac };
+}; */
+
+export const usePermiso = ({ usuariosPermitidos = [], emergencia = null }) => {
     const { usuario } = useAuth();
     const [permisos, setPermisos] = useState({
         checkPermiso: false,
@@ -25,24 +40,8 @@ import { useAuth } from "../context/AuthContext";
 
         setPermisos(nuevosPermisos);
         console.log("Usuario:", usuario);
-        
+
     }, [usuario]);
 
-    const check = (permisos = []) => {
-        return permisos.includes(usuario?.tipo?.id);
-    }
-
-    return { permisos, check };
-}; */
-
-
-export const usePermiso = () => {
-    const { usuario } = useAuth();
-    
-
-    const checkPrivilegios = (permisos = []) => {
-        return permisos.includes(usuario?.tipo?.id);
-    }
-
-    return { checkPrivilegios };
+    return permisos;
 };

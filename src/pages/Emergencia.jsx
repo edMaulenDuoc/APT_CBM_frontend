@@ -20,10 +20,9 @@ import emergenciaService from "../services/emergencia.service";
 
 const Emergencia = () => {
     // Solo el usuario con ID 1 puede ver el botón de nueva emergencia y el de editar
-    const checkPermiso = true; // Hardcodeado para pruebas
-    const { checkPrivilegios } = usePermiso({}); // Admin y Chofer
-
-    console.log("checkPermiso en Emergencia:", checkPrivilegios([1])); // Admin
+    /* const { checkEsAdmin } = usePermiso();
+    const checkPermiso = checkEsAdmin(); */
+    const { checkPermiso } = usePermiso({ usuariosPermitidos: [1] });
 
     /* Control de flujo */
     const [cargando, setCargando] = useState(true);

@@ -13,7 +13,7 @@ export const AuthProvider = ({ children }) => {
     useEffect(() => {
         const verificarSesion = async () => {
             try {
-                const  usuario  = await userService.perfil();
+                const usuario = await userService.perfil();
                 setUsuario(usuario);
             } catch (error) {
                 setUsuario(null);
@@ -27,16 +27,19 @@ export const AuthProvider = ({ children }) => {
 
     const login = async (credentials) => {
         const data = await userService.login(credentials);
-        
+
         if (data?.perfil) {
-            setUsuario(data.perfil);
+            const perfil = await userService.perfil();
+            setUsuario(perfil);
         }
+
         return data;
     };
 
     const logout = async () => {
         await userService.logout();
         setUsuario(null);
+        // elimina la cookie de sesión si es necesario
     };
 
     const register = async (userData) => {

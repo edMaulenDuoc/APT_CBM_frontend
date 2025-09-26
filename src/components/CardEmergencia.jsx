@@ -5,10 +5,13 @@ import { usePermiso } from '../hooks/usePermiso';
 import CardVehiculo from './CardVehiculo';
 
 const CardEmergenciaa = ({ emergencia, onEditar, checkPermiso }) => {
-    // const { checkEsObac, checkEsChofer } = usePermiso({ emergencia });
-    const checkEsObac = true; // Hardcodeado para pruebas
-    const checkEsChofer = false; // Hardcodeado para pruebas
-    
+    const { checkEsObac, checkEsChofer } = usePermiso({ emergencia });
+    /* const checkEsObac = true; // Hardcodeado para pruebas
+    const checkEsChofer = false; // Hardcodeado para pruebas */
+
+    /*  const { checkEsObac, checkEsChofer } = usePermiso();
+    const esObac = checkEsObac(emergencia);
+    const esChofer = checkEsChofer(); */
     return (
         <div className="foreground  p-4 rounded-2xl hover:ml-3 hover:shadow-lg hover:cursor-pointer transition-all h-full">
             {/* Cabecera */}
