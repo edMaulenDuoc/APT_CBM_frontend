@@ -20,8 +20,6 @@ import emergenciaService from "../services/emergencia.service";
 
 const Emergencia = () => {
     // Solo el usuario con ID 1 puede ver el botón de nueva emergencia y el de editar
-    /* const { checkEsAdmin } = usePermiso();
-    const checkPermiso = checkEsAdmin(); */
     const { checkPermiso } = usePermiso({ usuariosPermitidos: [1] });
 
     /* Control de flujo */

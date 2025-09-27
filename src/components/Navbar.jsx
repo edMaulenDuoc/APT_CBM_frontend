@@ -33,7 +33,7 @@ const Navbar = () => {
                     </button>
 
                     {/* Desktop links */}
-                    <div className="links hidden md:flex items-center gap-5">
+                    <div className="links hidden lg:flex items-center gap-5">
                         <div>
                             <Link href="/test" icon={<House />} label="Inicio" />
                         </div>
@@ -49,7 +49,7 @@ const Navbar = () => {
                     </div>
                 </div>
 
-                <div className="hidden md:flex">
+                <div className="hidden lg:flex">
                     <button
                         onClick={handleLogout}
                         className="border-1 text-white px-4 py-2 rounded-md hover:cursor-pointer hover:scale-105 hover:bg-gray-800 transition-transform flex items-center gap-3.5"
@@ -59,7 +59,7 @@ const Navbar = () => {
                     </button>
                 </div>
 
-                <div className="md:hidden">
+                <div className="lg:hidden">
                     <button
                         type="button"
                         onClick={() => setOpen((v) => !v)}
@@ -75,7 +75,7 @@ const Navbar = () => {
                 <div
                     id="mobile-menu"
                     aria-hidden={!open}
-                    className={`absolute top-full left-0 w-full md:hidden foreground border-t border-gray-800 shadow-md overflow-hidden transition-all duration-300 ${open ? "opacity-100 max-h-[400px]" : "opacity-0 max-h-0"}`}
+                    className={`absolute top-full left-0 w-full lg:hidden foreground border-t border-gray-800 shadow-md overflow-hidden transition-all duration-300 ${open ? "opacity-100 max-h-[400px]" : "opacity-0 max-h-0"}`}
                 >
                     <div className="flex flex-col p-2">
                         <div className="max-h-72 overflow-y-auto">

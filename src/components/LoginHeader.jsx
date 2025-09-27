@@ -48,6 +48,13 @@ const LoginHeader = () => {
             <div>
                 <Flame className="h-14 w-14 text-primary-foreground mr-2 icon-color" />
             </div>
+            {/* Seccion de botones de desarrollo (quitar más adelante) */}
+            <div className="flex">
+                <BotonRojo
+                    textoBoton={"Chofer"}
+                    onClick={() => setFormData({ usuario: "pnavarro", clave: "123456" })}
+                />
+            </div>
             <div className="flex items-center gap-5">
                 <div className="">
                     <Input

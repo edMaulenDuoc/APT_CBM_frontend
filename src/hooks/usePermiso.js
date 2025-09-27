@@ -29,7 +29,7 @@ export const usePermiso = ({ usuariosPermitidos = [], emergencia = null }) => {
         if (!usuario) return;
 
         const nuevosPermisos = {
-            checkEsChofer: usuario?.tipo?.id === 26,   // Chofer
+            checkEsChofer: usuario?.tipo?.id === 24,   // Chofer
             checkEsAdmin: usuario?.tipo?.id === 1,     // Admin
             checkPermiso:
                 usuariosPermitidos.length === 0
@@ -39,7 +39,6 @@ export const usePermiso = ({ usuariosPermitidos = [], emergencia = null }) => {
         };
 
         setPermisos(nuevosPermisos);
-        console.log("Usuario:", usuario);
 
     }, [usuario]);
 

@@ -31,7 +31,14 @@ const AppRoutes = () => {
                     <Turnos/>
                 </ProtectedRoute>
             } />
-            <Route path="*" element={<h2>404 — No encontrado</h2>} />
+            <Route path="*" element={
+                <div className="flex flex-col justify-center items-center mt-40">
+                    <div className="bg-yellow-600 p-4 rounded-2xl mb-4 flex flex-col justify-center items-center">
+                        <h2 className="text-2xl">404 — No encontrado</h2>
+                        <p className="text-black">La página que estás buscando no existe.</p>
+                    </div>
+                </div>
+            } />
         </Routes>
         </>
     );

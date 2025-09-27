@@ -6,12 +6,20 @@ import CardVehiculo from './CardVehiculo';
 
 const CardEmergenciaa = ({ emergencia, onEditar, checkPermiso }) => {
     const { checkEsObac, checkEsChofer } = usePermiso({ emergencia });
-    /* const checkEsObac = true; // Hardcodeado para pruebas
-    const checkEsChofer = false; // Hardcodeado para pruebas */
-
-    /*  const { checkEsObac, checkEsChofer } = usePermiso();
-    const esObac = checkEsObac(emergencia);
-    const esChofer = checkEsChofer(); */
+    const horaLlegada = emergencia.hora_6_3 ? new Date(emergencia.hora_6_3).toLocaleString() : null;
+    
+    const horaCreacion = new Date(emergencia.createdAt).toLocaleString();
+    const fechaCreacion = new Date(emergencia.createdAt);
+    const fechaLlegada = emergencia.hora_6_3 ? new Date(emergencia.hora_6_3) : null;
+    
+    const diferencia = fechaLlegada && fechaCreacion ? Math.abs(fechaLlegada - fechaCreacion) : 0;
+    const horas = Math.floor(diferencia / (1000 * 60 * 60));
+    const minutos = Math.floor((diferencia % (1000 * 60 * 60)) / (1000 * 60));
+    const segundos = Math.floor((diferencia % (1000 * 60)) / 1000);
+    
+    console.log("emergencia en CardEmergencia:", emergencia);
+    console.log("Hora de llegada en CardEmergencia:", horaLlegada);
+    
     return (
         <div className="foreground  p-4 rounded-2xl hover:ml-3 hover:shadow-lg hover:cursor-pointer transition-all h-full">
             {/* Cabecera */}
@@ -73,9 +81,17 @@ const CardEmergenciaa = ({ emergencia, onEditar, checkPermiso }) => {
                     <MapPin />
                     <p>{emergencia.direccion}</p>
                 </div>
-                <div className='flex gap-4 items-center flex-wrap'>
-                    <Clock4 />
-                    <p>{new Date(emergencia.createdAt).toLocaleString()}</p>
+                <div className='flex gap-4 items-center flex-col'>
+                    <div className='flex gap-4 items-center '>
+                        <Clock4 />
+                        <p>{horaCreacion}</p>
+                        {emergencia.hora_6_3 && <p>{}</p>}
+                    </div>
+                    {emergencia.hora_6_3 &&
+                        <div>
+                            <p className='font-bold'> Hora de llegada {horaLlegada}</p>
+                        </div>
+                    }
                 </div>
                 <div className='flex gap-4 items-center flex-wrap'>
                     <CircleUser />
@@ -99,7 +115,7 @@ const CardEmergenciaa = ({ emergencia, onEditar, checkPermiso }) => {
                     {emergencia.vehiculos.length > 0
                         ? emergencia.vehiculos.map((ve) => (
                             <div key={ve.id}>
-                                <CardVehiculo vehiculo={ve.vehiculo} />
+                                <CardVehiculo vehiculoEmergencia={ve} emergencia={emergencia} />
                             </div>
                         ))
                         : <p>No hay vehículos asignados</p>}
